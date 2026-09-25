@@ -78,6 +78,21 @@ describeMatrix("serve static", (t, { it, expect }) => {
     expect(res.headers.get("vary")).toBe("accept-encoding");
   });
 
+  it("Keeps existing vary values", async () => {
+    t.app.all("/cors/**", (event) => {
+      event.res.headers.set("vary", "origin");
+      return serveStatic(event, {
+        getContents: (id) => `asset:${id}`,
+        getMeta: (id) => ({ type: "text/plain", path: id }),
+        encodings: { gzip: ".gz" },
+      });
+    });
+    const res = await t.fetch("/cors/test.png", {
+      headers: { "accept-encoding": "gzip" },
+    });
+    expect(res.headers.get("vary")).toBe("origin, accept-encoding");
+  });
+
   it("Handles cache (if-none-match)", async () => {
     const res = await t.fetch("/test.png", {
       headers: { "if-none-match": "w/123" },

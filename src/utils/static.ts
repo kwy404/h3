@@ -190,7 +190,12 @@ export async function serveStatic(
   );
 
   if (acceptEncodings.length > 0) {
-    event.res.headers.set("vary", "accept-encoding");
+    const vary = event.res.headers.get("vary");
+    if (!vary) {
+      event.res.headers.set("vary", "accept-encoding");
+    } else if (!/(?:^|,)\s*(?:\*|accept-encoding)\s*(?:,|$)/i.test(vary)) {
+      event.res.headers.set("vary", `${vary}, accept-encoding`);
+    }
   }
 
   let id = originalId;
