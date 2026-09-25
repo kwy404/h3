@@ -70,6 +70,14 @@ describeMatrix("serve static", (t, { it, expect }) => {
     expect(headRes.headers.get("content-length")).toBe("18");
   });
 
+  it("Sets vary when a single encoding is accepted", async () => {
+    const res = await t.fetch("/test.png", {
+      headers: { "accept-encoding": "gzip" },
+    });
+    expect(await res.text()).toBe("asset:/test.png.gz");
+    expect(res.headers.get("vary")).toBe("accept-encoding");
+  });
+
   it("Handles cache (if-none-match)", async () => {
     const res = await t.fetch("/test.png", {
       headers: { "if-none-match": "w/123" },

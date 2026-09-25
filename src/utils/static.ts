@@ -189,7 +189,7 @@ export async function serveStatic(
     options.encodings,
   );
 
-  if (acceptEncodings.length > 1) {
+  if (acceptEncodings.length > 0) {
     event.res.headers.set("vary", "accept-encoding");
   }
 
